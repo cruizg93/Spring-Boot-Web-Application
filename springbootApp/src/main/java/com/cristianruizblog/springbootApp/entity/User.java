@@ -29,15 +29,25 @@ public class User implements Serializable{
 	@GenericGenerator(name="native",strategy="native")
 	private Long id;
 	
-	@Column @NotBlank
+	@Column 
+	@NotBlank
 	private String firstName;
-	@Column @NotBlank
+	
+	@Column 
+	@NotBlank
 	private String lastName;
-	@Column(unique = true) @Email @NotBlank
+	
+	@Column(unique = true) 
+	@Email 
+	@NotBlank
 	private String email;
-	@Column(unique = true) @NotBlank
+	
+	@Column(unique = true) 
+	@NotBlank
 	private String username;
-	@Column @NotBlank
+	
+	@Column 
+	@NotBlank
 	private String password;
 	
 	@Transient 
@@ -54,7 +64,7 @@ public class User implements Serializable{
 	public User(Long id) {
 		this.id = id;
 	}
-	
+
 	public Long getId() {
 		return id;
 	}
@@ -118,7 +128,7 @@ public class User implements Serializable{
 	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
