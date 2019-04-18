@@ -9,19 +9,17 @@ import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import com.cristianruizblog.springbootApp.entity.User;
 import com.cristianruizblog.springbootApp.repository.RoleRepository;
-import com.cristianruizblog.springbootApp.repository.UserRepository;
 import com.cristianruizblog.springbootApp.service.UserService;
 
 
 @Controller
 public class UserController {
 
-	@Autowired
-	UserRepository userRepository;
 	
 	@Autowired
 	RoleRepository roleRepository;
@@ -60,9 +58,45 @@ public class UserController {
 			}
 		}
 
-		model.addAttribute("userList", userRepository.findAll());
+		model.addAttribute("userList", userService.getAllUsers());
 		model.addAttribute("roles",roleRepository.findAll());
 		return "user-form/user-view";
 	}
 	
+	
+	@GetMapping("/editUser/{id}")
+	public String getEditUserForm(Model model, @PathVariable(name="id") Long id) throws Exception {
+		User user = userService.getUserById(id);
+		
+		model.addAttribute("userList", userService.getAllUsers());
+		model.addAttribute("roles",roleRepository.findAll());
+		model.addAttribute("userForm", user);
+		model.addAttribute("formTab","active");
+		
+		model.addAttribute("editMode",true);
+		
+		return "user-form/user-view";
+	}
+	
+	@PostMapping("/editUser")
+	public String postEditUserForm(@Valid @ModelAttribute("userForm")User user, BindingResult result, ModelMap model) {
+		try {
+			if(result.hasErrors()) {
+				model.addAttribute("userForm", user);
+				model.addAttribute("formTab","active");
+			}else {
+				userService.updateUser(user);
+			}
+		} catch (Exception e) {
+			model.addAttribute("editMode",true);
+			model.addAttribute("userForm", user);
+			model.addAttribute("formTab","active");
+		} 
+		return "redirect:/userForm";
+	}
+	
+	@GetMapping("/editUser/cancel")
+	public String cancelEditUser(ModelMap model) {
+		return "redirect:/userForm";
+	}
 }

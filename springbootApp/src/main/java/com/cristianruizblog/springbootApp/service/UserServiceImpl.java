@@ -47,5 +47,29 @@ public class UserServiceImpl implements UserService{
 		}
 		return true;
 	}
+
+	@Override
+	public User getUserById(Long id) throws Exception {
+		User user = userRepository.findById(id).orElseThrow(() -> new Exception("User does not exist"));
+		return user;
+	}
 	
+	public User updateUser(User formUser) throws Exception {
+		
+		User storedUser = userRepository.findById(formUser.getId())
+				.orElseThrow(() -> new Exception("UsernotFound in updateUser -"+this.getClass().getName()));
+		
+		mapUser(formUser,storedUser);
+		userRepository.save(storedUser);
+		return storedUser;
+	}
+	
+	protected void mapUser(User from,User to) {
+		to.setUsername(from.getUsername());
+		to.setFirstName(from.getFirstName());
+		to.setLastName(from.getLastName());
+		to.setEmail(from.getEmail());
+		to.setRoles(from.getRoles());
+		to.setPassword(from.getPassword());
+	}
 }
