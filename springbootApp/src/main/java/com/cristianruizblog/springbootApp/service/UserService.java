@@ -1,6 +1,7 @@
 package com.cristianruizblog.springbootApp.service;
 
 
+import com.cristianruizblog.springbootApp.dto.ChangePasswordForm;
 import com.cristianruizblog.springbootApp.entity.User;
 
 public interface UserService {
@@ -14,5 +15,7 @@ public interface UserService {
 	public User updateUser(User formUser) throws Exception;
 	
 	public void deleteUser(Long id) throws Exception;
+	
+	public User changePassword(ChangePasswordForm form) throws Exception;
 		
 }

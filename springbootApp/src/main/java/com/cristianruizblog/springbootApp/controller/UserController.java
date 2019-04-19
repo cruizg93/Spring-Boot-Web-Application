@@ -1,17 +1,23 @@
 package com.cristianruizblog.springbootApp.controller;
 
+import java.util.stream.Collectors;
+
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import com.cristianruizblog.springbootApp.dto.ChangePasswordForm;
 import com.cristianruizblog.springbootApp.entity.User;
 import com.cristianruizblog.springbootApp.repository.RoleRepository;
 import com.cristianruizblog.springbootApp.service.UserService;
@@ -71,6 +77,7 @@ public class UserController {
 		model.addAttribute("userList", userService.getAllUsers());
 		model.addAttribute("roles",roleRepository.findAll());
 		model.addAttribute("userForm", user);
+		model.addAttribute("passwordForm",new ChangePasswordForm(user.getId()));
 		model.addAttribute("formTab","active");
 		
 		model.addAttribute("editMode",true);
@@ -90,6 +97,7 @@ public class UserController {
 		} catch (Exception e) {
 			model.addAttribute("editMode",true);
 			model.addAttribute("userForm", user);
+			model.addAttribute("passwordForm",new ChangePasswordForm(user.getId()));
 			model.addAttribute("formTab","active");
 		} 
 		return "redirect:/userForm";
@@ -108,5 +116,23 @@ public class UserController {
 			model.addAttribute("deleteError","The user could not be deleted.");
 		}
 		return getUserForm(model);
+	}
+	
+	@PostMapping("/editUser/changePassword")
+	public ResponseEntity<?> postEditUseChangePassword(@Valid @RequestBody ChangePasswordForm form, Errors errors) {
+		try {
+			//If error, just return a 400 bad request, along with the error message
+	        if (errors.hasErrors()) {
+	            String result = errors.getAllErrors()
+	                        .stream().map(x -> x.getDefaultMessage())
+	                        .collect(Collectors.joining("<br/>"));
+
+	            throw new Exception(result);
+	        }
+			userService.changePassword(form);
+		} catch (Exception e) {
+			return ResponseEntity.badRequest().body(e.getMessage());
+		}
+		return ResponseEntity.ok("success");
 	}
 }
