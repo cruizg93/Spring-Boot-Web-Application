@@ -3,6 +3,8 @@ package com.cristianruizblog.springbootApp.service;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.cristianruizblog.springbootApp.dto.ChangePasswordForm;
@@ -86,7 +88,7 @@ public class UserServiceImpl implements UserService{
 				.findById( form.getId() )
 				.orElseThrow(() -> new Exception("UsernotFound in ChangePassword."));
 		
-		if( form.getCurrentPassword().equals(storedUser.getPassword())) {
+		if( !isLoggedUserADMIN() && form.getCurrentPassword().equals(storedUser.getPassword())) {
 			throw new Exception("Current Password Incorrect.");
 		}
 		
@@ -100,5 +102,18 @@ public class UserServiceImpl implements UserService{
 		
 		storedUser.setPassword(form.getNewPassword());
 		return userRepository.save(storedUser);
+	}
+	
+	private boolean isLoggedUserADMIN() {
+		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+		UserDetails loggedUser = null;
+		if (principal instanceof UserDetails) {
+			loggedUser = (UserDetails) principal;
+		
+			loggedUser.getAuthorities().stream()
+					.filter(x -> "ADMIN".equals(x.getAuthority() ))      
+					.findFirst().orElse(null);
+		}
+		return loggedUser != null ?true :false;
 	}
 }
